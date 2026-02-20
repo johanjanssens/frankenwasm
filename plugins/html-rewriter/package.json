@@ -1,0 +1,12 @@
+{
+  "name": "html-rewriter",
+  "version": "0.0.1",
+  "devDependencies": {
+    "@extism/js-pdk": "^1.1.1",
+    "esbuild": "^0.25.4"
+  },
+  "dependencies": {
+    "@esbuild-plugins/node-modules-polyfill": "^0.2.2",
+    "cheerio": "1.0.0"
+  }
+}

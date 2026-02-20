@@ -1,0 +1,10 @@
+{
+    "name": "nomnoml-plugin",
+    "private": true,
+    "dependencies": {
+        "nomnoml": "^1.6.2"
+    },
+    "devDependencies": {
+        "esbuild": "^0.20.0"
+    }
+}

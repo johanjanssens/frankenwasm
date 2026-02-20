@@ -1,0 +1,10 @@
+{
+    "name": "sanitize-js-plugin",
+    "private": true,
+    "dependencies": {
+        "sanitize-html": "^2.13.0"
+    },
+    "devDependencies": {
+        "esbuild": "^0.20.0"
+    }
+}

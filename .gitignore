@@ -1,0 +1,10 @@
+dist/
+.DS_Store
+.idea/
+.vscode/
+__debug_bin
+*.log
+plugins/*.wasm
+env.yaml
+**/target/
+**/node_modules/

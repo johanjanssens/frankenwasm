@@ -1,0 +1,11 @@
+{
+  "name": "markdown-js",
+  "version": "0.0.1",
+  "devDependencies": {
+    "@extism/extism": "^1.0.2",
+    "esbuild": "^0.19.12"
+  },
+  "dependencies": {
+    "markdown-it": "^14.1.0"
+  }
+}
