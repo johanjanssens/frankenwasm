@@ -1,19 +1,16 @@
 export MAKEFLAGS='--silent --environment-override'
 
 ROOT := $(abspath $(dir $(lastword $(MAKEFILE_LIST))))
-PHP_BUILD := $(abspath $(ROOT)/..)
 
 .ONESHELL:
 
 .PHONY: build
 build:
 	if [ ! -f $(ROOT)/env.yaml ]; then
-		if [ "$$(uname -s)" = "Darwin" ]; then
-			export MACOSX_DEPLOYMENT_TARGET="15.0"
-		fi
-		export CGO_CFLAGS="$$(make -C $(PHP_BUILD) cflags)"
-		export CGO_CPPFLAGS="$$CGO_CFLAGS"
-		export CGO_LDFLAGS="$$(make -C $(PHP_BUILD) ldflags)"
+		echo "Error: env.yaml not found."
+		echo "Run 'make php' to build PHP, then 'make env' to generate env.yaml."
+		echo "See README.md for details."
+		exit 1
 	fi
 
 	cd $(ROOT)
@@ -24,33 +21,22 @@ build:
 run: build
 	cd $(ROOT) && FRANKENWASM_PLUGIN_DIR=plugins FRANKENWASM_DOC_ROOT=examples dist/frankenwasm
 
-.PHONY: env
-env:
-	if [ "$$(uname -s)" = "Darwin" ]; then
-		deployment_target='MACOSX_DEPLOYMENT_TARGET: "15.0"'
-	else
-		deployment_target=""
-	fi
-
-	cflags=$$(make -C $(PHP_BUILD) cflags)
-	ldflags=$$(make -C $(PHP_BUILD) ldflags)
-
-	cat > $(ROOT)/env.yaml <<-YAML
-		HOME: "$$HOME"
-		GOPATH: "$${GOPATH:-$$HOME/go}"
-		GOFLAGS: "-tags=nowatcher"
-		CGO_ENABLED: "1"
-		$$deployment_target
-		CGO_CFLAGS: "$$cflags"
-		CGO_CPPFLAGS: "$$cflags"
-		CGO_LDFLAGS: "$$ldflags"
-	YAML
-
-	echo "Generated env.yaml"
-
 .PHONY: clean
 clean:
 	rm -rf dist/frankenwasm
+
+# PHP build targets (delegated to build/php/Makefile)
+.PHONY: php
+php:
+	$(MAKE) -f $(ROOT)/build/php/Makefile download build
+
+.PHONY: env
+env:
+	$(MAKE) -f $(ROOT)/build/php/Makefile env
+
+.PHONY: php-clean
+php-clean:
+	$(MAKE) -f $(ROOT)/build/php/Makefile clean=1 clean
 
 .PHONY: plugins
 plugins:

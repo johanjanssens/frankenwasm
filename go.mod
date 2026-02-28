@@ -21,7 +21,7 @@ require (
 	github.com/dunglas/mercure v0.21.8 // indirect
 	github.com/dunglas/skipfilter v1.0.0 // indirect
 	github.com/dylibso/observe-sdk/go v0.0.0-20240819160327-2d926c5d788a // indirect
-	github.com/e-dant/watcher v0.0.0-20260202035023-10268e78355f // indirect
+	github.com/e-dant/watcher v0.0.0-20260223030516-06f84a1314be // indirect
 	github.com/ebitengine/purego v0.9.1 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect

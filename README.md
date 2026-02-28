@@ -10,7 +10,7 @@ Plugins are sandboxed, portable `.wasm` files loaded at startup that run alongsi
 
 - [Building PHP Plugins with WebAssembly and Extism](https://phpconference.com/trends-gen-ai/php-webassembly-extism/) — PHP Conference 2025 ([slides](https://gamma.app/docs/Building-PHP-plugins-with-WebAssembly-and-Extism-PHPConference--9lt1nfffdsd8v5l))
 - [PHPKonf 2025](https://phpkonf.org/) ([slides](https://gamma.app/docs/Building-PHP-plugins-with-WebAssembly-and-Extism-PHPKonf-2025-twuui0ecyow5km7))
-- [Building PHP Extensions with WebAssembly](https://confoo.ca/en/2026/session/building-php-extensions-with-webassembly) — ConFoo 2026
+- [Building PHP Extensions with WebAssembly](https://confoo.ca/en/2026/session/building-php-extensions-with-webassembly) — ConFoo 2026 ([slides](https://gamma.app/docs/Building-PHP-plugins-with-WASM-Confoo-2026-j0k4fwetfc6gjib))
 
 ![FrankenWASM Demo](screenshot.png)
 
@@ -45,8 +45,32 @@ Rust plugins are consistently the smallest — the entire ASCII art plugin with 
 
 ## How It Works
 
+FrankenWASM combines three key pieces:
+
+- **[FrankenPHP](https://frankenphp.dev)** — embeds PHP in a Go process, giving us a Go server that serves PHP pages
+- **[Extism](https://extism.org)** — a plugin framework for WebAssembly. Provides a simple "bytes in, bytes out" contract, with PDKs (Plugin Development Kits) for writing plugins in Go, Rust, JS, and more, and Host SDKs for loading and calling them from host languages
+- **[Wazero](https://wazero.io)** — a pure Go WebAssembly runtime with zero dependencies. Extism uses Wazero under the hood to compile and execute `.wasm` modules
+
+Because FrankenPHP runs PHP inside Go, and Extism/Wazero run Wasm inside Go, the Go process becomes the bridge — a thin C extension connects PHP to Go, and Go connects to Wasm.
+
 ```
-PHP  →  FrankenPHP\Wasm  →  Go host (Extism SDK)  →  .wasm plugin
+                 PHP                          Go Host                        Wasm Plugins
+    ┌───────────────────────┐    ┌─────────────────────────────┐    ┌──────────────────────┐
+    │                       │    │                             │    │                      │
+    │  $p = new Wasm('md')  │    │  ┌─────────┐  ┌──────────┐  │    │  ┌────────────────┐  │
+    │  $p->call('convert',  ├───►│  │ C ext   ├─►│ Go host  │  │    │  │ markdown.wasm  │  │
+    │           $input)     │    │  │ (CGO)   │  │ (Extism) ├─–┼───►│  │ (Rust/Go/JS)   │  │
+    │                       │◄───┤  │         │◄─┤          │  │    │  │                │  │
+    │  // => "<h1>Hello</h1>"    │  └─────────┘  └──────────┘  │◄───┤  └────────────────┘  │
+    │                       │    │                   │         │    │  ┌────────────────┐  │
+    │                       │    │              ┌────┴─────┐   │    │  │ sanitize.wasm  │  │
+    │                       │    │              │ Wazero   │   │    │  │ chroma.wasm    │  │
+    │                       │    │              │ (Wasm VM)│   │    │  │ katex.wasm     │  │
+    │                       │    │              └──────────┘   │    │  │ ...20 plugins  │  │
+    │                       │    │                             │    │  └────────────────┘  │
+    └───────────────────────┘    └─────────────────────────────┘    └──────────────────────┘
+         FrankenPHP                    Extism + Wazero                  Extism PDK
+      (PHP embedded in Go)         (plugin framework + VM)         (Go, Rust, JS SDKs)
 ```
 
 1. **Plugins** are standalone `.wasm` files built with the Extism PDK (Go, Rust, or JS)
@@ -56,14 +80,15 @@ PHP  →  FrankenPHP\Wasm  →  Go host (Extism SDK)  →  .wasm plugin
 
 ## FrankenPHP Fork
 
-FrankenWASM requires a [fork of FrankenPHP](https://github.com/php/frankenphp) that adds three APIs not available in upstream FrankenPHP. These are needed because the `FrankenPHP\Wasm` PHP class is implemented as a C extension that must call back into Go to reach the per-request WASM plugin registry — and upstream FrankenPHP doesn't expose the thread or extension plumbing to make that possible.
+FrankenWASM currently requires a [fork of FrankenPHP](https://github.com/johanjanssens/frankenphp) that adds APIs not yet available in upstream FrankenPHP — hopefully that changes! The `FrankenPHP\Wasm` PHP class is implemented as a C extension that calls back into Go to reach the per-request WASM plugin registry — upstream FrankenPHP doesn't expose the thread plumbing to make that possible.
+
+FrankenPHP already provides `frankenphp.RegisterExtension(ptr)` to register C `zend_module_entry` extensions — FrankenWASM uses this to register the `FrankenPHP\Wasm` PHP class.
 
 The fork adds:
 
 | API | Language | Purpose |
 |---|---|---|
 | `frankenphp.Thread(index)` | Go | Retrieves a PHP thread by index, returning its `*http.Request` — which carries the request context where the WASM plugin registry is stored |
-| `frankenphp.RegisterExtension(ptr)` | Go | Registers a C `zend_module_entry` as a PHP extension during `init()`, so the `FrankenPHP\Wasm` class exists in PHP |
 | `frankenphp_thread_index()` | C | Returns the current thread's index from C code, so PHP extension methods can call `Thread(index)` to get back into Go |
 
 The call chain looks like this:
@@ -89,8 +114,27 @@ replace github.com/dunglas/frankenphp v1.11.2 => ../frankenphp
 ### Prerequisites
 
 - Go 1.26+
-- The [FrankenPHP fork](https://github.com/php/frankenphp) cloned as a sibling directory (`../frankenphp`)
+- The [FrankenPHP fork](https://github.com/johanjanssens/frankenphp) cloned as a sibling directory (`../frankenphp`)
 - For building plugins: Go, Rust/cargo, Node.js, and [extism-js](https://github.com/extism/extism)
+
+### Build PHP
+
+FrankenWASM requires a ZTS (thread-safe) PHP build with embed support. The repo includes a Makefile that uses [static-php-cli](https://static-php.dev) to build PHP automatically:
+
+```bash
+make php     # Download static-php-cli + build PHP 8.3 (ZTS, embed)
+make env     # Generate env.yaml from the PHP build
+```
+
+This builds a minimal PHP with the extensions needed for the demo. The PHP build is cached in `build/.php/` — subsequent runs skip the build if `libphp.a` exists.
+
+To rebuild from scratch:
+
+```bash
+make php-clean   # Remove cached downloads and build artifacts
+make php         # Rebuild
+make env         # Regenerate env.yaml
+```
 
 ### Build & Run
 
@@ -103,6 +147,26 @@ make run
 ```
 
 The server starts on `http://localhost:8080` with the demo pages.
+
+### Manual Setup
+
+If you prefer to use your own PHP build, create an `env.yaml` manually:
+
+```yaml
+HOME: "/Users/you"
+GOPATH: "/Users/you/go"
+GOFLAGS: "-tags=nowatcher"
+CGO_ENABLED: "1"
+CGO_CFLAGS: "-I/path/to/php/include ..."
+CGO_CPPFLAGS: "-I/path/to/php/include ..."
+CGO_LDFLAGS: "-L/path/to/php/lib -lphp ..."
+```
+
+The CGO flags must point to your PHP build's include headers and libraries. PHP must be built with ZTS (`--enable-zts`) and embed (`--enable-embed`).
+
+### GoLand
+
+Configure GoLand to load `env.yaml` as environment variables.
 
 ### Environment Variables
 
@@ -243,12 +307,15 @@ frankenwasm/
 │   ├── ascii-rs/        # Rust: FIGlet-style ASCII art banners
 │   └── langdetect-rs/   # Rust: Language detection (whatlang)
 ├── examples/            # PHP demo pages
+├── build/
+│   └── php/
+│       └── Makefile     # PHP build via static-php-cli (ZTS + embed)
 └── Makefile             # Build targets
 ```
 
 ## License
 
-Code is MIT — see [LICENSE.md](LICENSE.md). The [talk material](talk.md) is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — free to share and adapt with attribution.
+Code is MIT — see [LICENSE.md](LICENSE.md). Talk material is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — free to share and adapt with attribution.
 
 ## Postcardware
 

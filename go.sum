@@ -16,8 +16,8 @@ github.com/dunglas/skipfilter v1.0.0 h1:JG9SgGg4n6BlFwuTYzb9RIqjH7PfwszvWehanrYW
 github.com/dunglas/skipfilter v1.0.0/go.mod h1:ryhr8j7CAHSjzeN7wI6YEuwoArQ3OQmRqWWVCEAfb9w=
 github.com/dylibso/observe-sdk/go v0.0.0-20240819160327-2d926c5d788a h1:UwSIFv5g5lIvbGgtf3tVwC7Ky9rmMFBp0RMs+6f6YqE=
 github.com/dylibso/observe-sdk/go v0.0.0-20240819160327-2d926c5d788a/go.mod h1:C8DzXehI4zAbrdlbtOByKX6pfivJTBiV9Jjqv56Yd9Q=
-github.com/e-dant/watcher v0.0.0-20260202035023-10268e78355f h1:UDB5nhFRW7IOOpLk/eP1UGj7URmPimFGV+01/EG9qR8=
-github.com/e-dant/watcher v0.0.0-20260202035023-10268e78355f/go.mod h1:PmV4IVmBJVqT2NcfTGN4+sZ+qGe3PA0qkphAtOHeFG0=
+github.com/e-dant/watcher v0.0.0-20260223030516-06f84a1314be h1:vqHrvilasyJcnru/0Z4FoojsQJUIfXGVplte7JtupfY=
+github.com/e-dant/watcher v0.0.0-20260223030516-06f84a1314be/go.mod h1:PmV4IVmBJVqT2NcfTGN4+sZ+qGe3PA0qkphAtOHeFG0=
 github.com/ebitengine/purego v0.9.1 h1:a/k2f2HQU3Pi399RPW1MOaZyhKJL9w/xFpKAg4q1s0A=
 github.com/ebitengine/purego v0.9.1/go.mod h1:iIjxzd6CiRiOG0UyXP+V1+jWqUXVjPKLAI0mRfJZTmQ=
 github.com/extism/go-sdk v1.7.1 h1:lWJos6uY+tRFdlIHR+SJjwFDApY7OypS/2nMhiVQ9Sw=
@@ -51,8 +51,8 @@ github.com/ianlancetaylor/demangle v0.0.0-20240805132620-81f5be970eca h1:T54Ema1
 github.com/ianlancetaylor/demangle v0.0.0-20240805132620-81f5be970eca/go.mod h1:gx7rwoVhcfuVKG5uya9Hs3Sxj7EIvldVofAWIUtGouw=
 github.com/joho/godotenv v1.5.1 h1:7eLL/+HRGLY0ldzfGMeQkb7vMd0as4CfYvUVzLqw0N0=
 github.com/joho/godotenv v1.5.1/go.mod h1:f4LDr5Voq0i2e/R5DDNOoa2zzDfwtkZa6DnEwAbqwq4=
-github.com/klauspost/compress v1.18.0 h1:c/Cqfb0r+Yi+JtIEq73FWXVkRonBlf0CRNYc8Zttxdo=
-github.com/klauspost/compress v1.18.0/go.mod h1:2Pp+KzxcywXVXMr50+X0Q/Lsb43OQHYWRCY2AiWywWQ=
+github.com/klauspost/compress v1.18.4 h1:RPhnKRAQ4Fh8zU2FY/6ZFDwTVTxgJ/EMydqSTzE9a2c=
+github.com/klauspost/compress v1.18.4/go.mod h1:R0h/fSBs8DE4ENlcrlib3PsXS61voFxhIs2DeRhCvJ4=
 github.com/kr/pretty v0.3.1 h1:flRD4NNwYAUpkphVc1HcthR4KEIFJ65n8Mw5qdRn3LE=
 github.com/kr/pretty v0.3.1/go.mod h1:hoEshYVHaxMs3cyo3Yncou5ZscifuDolrwPKZanG3xk=
 github.com/kr/text v0.2.0 h1:5Nx0Ya0ZqY2ygV366QzturHI13Jq95ApcVaJBhpS+AY=
