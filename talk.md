@@ -69,14 +69,17 @@ Markdown to HTML:
 
 ```rust
 use extism_pdk::*;
-use pulldown_cmark::{Parser, html};
 
 #[plugin_fn]
-pub fn convert(input: String) -> FnResult<String> {
-    let parser = Parser::new(&input);
-    let mut output = String::new();
-    html::push_html(&mut output, parser);
-    Ok(output)
+pub fn convert(text: String) -> FnResult<String> {
+    let mut options = markdown::Options::gfm();
+    options.compile.allow_dangerous_html = true;
+    options.compile.allow_dangerous_protocol = true;
+
+    let result = markdown::to_html_with_options(&text, &options)
+        .unwrap_or_else(|_| text.clone());
+
+    Ok(result)
 }
 ```
 
@@ -88,10 +91,16 @@ The same plugin in Go:
 ```go
 //go:wasmexport convert
 func convert() int32 {
-    input := pdk.InputString()
-    var buf bytes.Buffer
-    md.Convert([]byte(input), &buf)
-    pdk.OutputString(buf.String())
+    input := pdk.Input()
+
+    extensions := parser.CommonExtensions | parser.AutoHeadingIDs
+    p := parser.NewWithExtensions(extensions)
+
+    opts := html.RendererOptions{Flags: html.CommonFlags | html.HrefTargetBlank}
+    renderer := html.NewRenderer(opts)
+
+    output := markdown.ToHTML(input, p, renderer)
+    pdk.Output(output)
     return 0
 }
 ```
@@ -99,14 +108,13 @@ func convert() int32 {
 And in JavaScript:
 
 ```javascript
-import MarkdownIt from 'markdown-it';
-const md = new MarkdownIt();
+import markdownit from 'markdown-it';
 
-function convert() {
+export function convert() {
     const input = Host.inputString();
+    const md = markdownit();
     Host.outputString(md.render(input));
 }
-module.exports = { convert };
 ```
 
 Three languages, same function signature, same `.wasm` output format. PHP doesn't know or care
@@ -139,7 +147,7 @@ The same task implemented in all three languages reveals clear trade-offs:
 | Language | Example Plugin | Size |
 |----------|---------------|------|
 | Rust | ASCII art (5 embedded fonts) | 256 KB |
-| Rust | Markdown (pulldown-cmark) | 644 KB |
+| Rust | Markdown (markdown-rs) | 644 KB |
 | Rust | HTML sanitization (ammonia) | 1.2 MB |
 | Go | QR code generation | 3.6 MB |
 | Go | HTML sanitization (bluemonday) | 4.3 MB |
@@ -162,7 +170,7 @@ QuickJS runtime.
 
 ### Markdown — three implementations compared
 
-The same Markdown input rendered by Go (gomarkdown, ~2 ms), Rust (pulldown-cmark, ~1 ms), and
+The same Markdown input rendered by Go (gomarkdown, ~2 ms), Rust (markdown-rs, ~1 ms), and
 JS (markdown-it, ~26 ms) side by side. Same HTML output, very different performance profiles.
 Rust is consistently the fastest, Go close behind, JS significantly slower due to the QuickJS
 interpreter overhead.

@@ -12,12 +12,12 @@ import (
 	"syscall"
 	"time"
 
-	_ "frankenwasm/phpext" // registers PHP extension via init()
-	"frankenwasm/wasm"
+	_ "github.com/johanjanssens/frankenwasm/phpext" // registers PHP extension via init()
+	"github.com/johanjanssens/frankenwasm/wasm"
 
 	"github.com/dunglas/frankenphp"
-	"github.com/lmittmann/tint"
 	"github.com/joho/godotenv"
+	"github.com/lmittmann/tint"
 )
 
 func main() {

@@ -1,4 +1,4 @@
-module frankenwasm
+module github.com/johanjanssens/frankenwasm
 
 go 1.26.0
 

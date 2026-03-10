@@ -11,7 +11,7 @@ import (
 	"encoding/json"
 	"unsafe"
 
-	"frankenwasm/wasm"
+	"github.com/johanjanssens/frankenwasm/wasm"
 
 	"github.com/dunglas/frankenphp"
 )
