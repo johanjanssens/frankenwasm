@@ -317,11 +317,3 @@ frankenwasm/
 
 Code is MIT — see [LICENSE.md](LICENSE.md). Talk material is licensed under [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — free to share and adapt with attribution.
 
-## Postcardware
-
-If you use this in a project or adapt the talk material, we'd love a postcard!
-
-**Johan Janssens**
-Ganzenbeemd 7
-3294 Molenstede
-Belgium
