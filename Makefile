@@ -14,12 +14,25 @@ build:
 	fi
 
 	cd $(ROOT)
-	CGO_ENABLED=1 go build -tags nowatcher -o dist/frankenwasm .
+	while IFS= read -r line; do
+		key="$${line%%:*}"
+		value="$${line#*: \"}"
+		value="$${value%\"}"
+		[ -n "$$key" ] && export "$$key=$$value"
+	done < env.yaml
+	go build -tags nowatcher -o dist/frankenwasm .
 	echo "Built dist/frankenwasm"
 
 .PHONY: run
 run: build
-	cd $(ROOT) && FRANKENWASM_PLUGIN_DIR=plugins FRANKENWASM_DOC_ROOT=examples dist/frankenwasm
+	cd $(ROOT)
+	while IFS= read -r line; do
+		key="$${line%%:*}"
+		value="$${line#*: \"}"
+		value="$${value%\"}"
+		[ -n "$$key" ] && export "$$key=$$value"
+	done < env.yaml
+	FRANKENWASM_PLUGIN_DIR=plugins FRANKENWASM_DOC_ROOT=examples dist/frankenwasm
 
 .PHONY: clean
 clean:

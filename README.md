@@ -117,36 +117,22 @@ replace github.com/dunglas/frankenphp v1.11.2 => ../frankenphp
 - The [FrankenPHP fork](https://github.com/johanjanssens/frankenphp) cloned as a sibling directory (`../frankenphp`)
 - For building plugins: Go, Rust/cargo, Node.js, and [extism-js](https://github.com/extism/extism)
 
-### Build PHP
-
-FrankenWASM requires a ZTS (thread-safe) PHP build with embed support. The repo includes a Makefile that uses [static-php-cli](https://static-php.dev) to build PHP automatically:
-
-```bash
-make php     # Download static-php-cli + build PHP 8.3 (ZTS, embed)
-make env     # Generate env.yaml from the PHP build
-```
-
-This builds a minimal PHP with the extensions needed for the demo. The PHP build is cached in `build/.php/` — subsequent runs skip the build if `libphp.a` exists.
-
-To rebuild from scratch:
-
-```bash
-make php-clean   # Remove cached downloads and build artifacts
-make php         # Rebuild
-make env         # Regenerate env.yaml
-```
-
 ### Build & Run
 
 ```bash
-# Build all plugins
-make plugins
-
-# Build the host binary and start the server
-make run
+make php        # Build PHP 8.3 (ZTS, embed) via static-php-cli (one-time)
+make env        # Generate env.yaml with CGO flags from the PHP build
+make plugins    # Build all .wasm plugins
+make run        # Build the host binary + start the server on :8080
 ```
 
-The server starts on `http://localhost:8080` with the demo pages.
+The PHP build is cached in `build/.php/` — subsequent runs skip the build if `libphp.a` exists. To rebuild PHP from scratch:
+
+```bash
+make php-clean  # Remove cached downloads and build artifacts
+make php        # Rebuild
+make env        # Regenerate env.yaml
+```
 
 ### Manual Setup
 
@@ -166,7 +152,7 @@ The CGO flags must point to your PHP build's include headers and libraries. PHP 
 
 ### GoLand
 
-Configure GoLand to load `env.yaml` as environment variables.
+Install the [EnvFile](https://plugins.jetbrains.com/plugin/7861-envfile) plugin, then in your Run Configuration enable EnvFile and add `env.yaml` to load the CGO flags automatically.
 
 ### Environment Variables
 
@@ -212,10 +198,9 @@ $highlighted = $chroma->call('transform', [
 ]);
 ```
 
-### Return Values
+### Data Exchange
 
-- If the plugin returns valid JSON, it is automatically decoded to a PHP array/value
-- Otherwise the raw string is returned
+PHP data in, PHP data out — arguments are automatically JSON-encoded, and return values are JSON-decoded back to PHP arrays/values. If the plugin returns a non-JSON string, it's passed through as-is. Anything you can `json_encode()` works as input.
 
 ## Writing Plugins
 
