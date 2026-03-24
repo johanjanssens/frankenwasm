@@ -111,13 +111,36 @@ replace github.com/dunglas/frankenphp v1.11.2 => ../frankenphp
 
 ## Quick Start
 
-### Prerequisites
+### Docker (recommended)
+
+```bash
+docker build -t frankenwasm .
+docker run -p 8080:8080 frankenwasm
+```
+
+The multi-stage Dockerfile handles everything — PHP build, plugin compilation (Go, Rust, JS), FrankenPHP fork, and the host binary. Each stage is cached independently, so rebuilds are fast.
+
+The PHP build stage uses [static-php-cli](https://github.com/crazywhalecc/static-php-cli) which can download pre-built libraries (openssl, curl, etc.) from GitHub instead of compiling from source. This requires a GitHub token to avoid API rate limits:
+
+```bash
+GITHUB_TOKEN=$(gh auth token) docker build \
+    --secret id=github_token,env=GITHUB_TOKEN \
+    -t frankenwasm .
+```
+
+Without the token the build still works — it just compiles all libraries from source, which takes longer.
+
+Open `http://localhost:8080` to see the demos.
+
+### Local Build
+
+#### Prerequisites
 
 - Go 1.26+
 - The [FrankenPHP fork](https://github.com/johanjanssens/frankenphp) cloned as a sibling directory (`../frankenphp`)
-- For building plugins: Go, Rust/cargo, Node.js, and [extism-js](https://github.com/extism/extism)
+- For building plugins: Go, Rust/cargo, Node.js, and [extism-js](https://github.com/extism/js-pdk)
 
-### Build & Run
+#### Build & Run
 
 ```bash
 make php        # Build PHP 8.3 (ZTS, embed) via static-php-cli (one-time)
@@ -134,7 +157,7 @@ make php        # Rebuild
 make env        # Regenerate env.yaml
 ```
 
-### Manual Setup
+#### Manual Setup
 
 If you prefer to use your own PHP build, create an `env.yaml` manually:
 
@@ -150,7 +173,7 @@ CGO_LDFLAGS: "-L/path/to/php/lib -lphp ..."
 
 The CGO flags must point to your PHP build's include headers and libraries. PHP must be built with ZTS (`--enable-zts`) and embed (`--enable-embed`).
 
-### GoLand
+#### GoLand
 
 Install the [EnvFile](https://plugins.jetbrains.com/plugin/7861-envfile) plugin, then in your Run Configuration enable EnvFile and add `env.yaml` to load the CGO flags automatically.
 

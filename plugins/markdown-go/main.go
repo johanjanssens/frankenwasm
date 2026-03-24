@@ -29,3 +29,5 @@ func convert() int32 {
 	pdk.Output(output)
 	return 0
 }
+
+func main() {}

@@ -1,0 +1,8 @@
+dist/
+build/.php/
+env.yaml
+*.wasm
+.git
+.idea
+**/node_modules/
+**/target/
