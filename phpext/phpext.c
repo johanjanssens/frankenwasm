@@ -55,7 +55,7 @@ PHP_MINFO_FUNCTION(frankenwasm)
 {
     php_info_print_table_start();
     php_info_print_table_header(2, "FrankenWASM Support", "enabled");
-    php_info_print_table_row(2, "Version", "0.1.0");
+    php_info_print_table_row(2, "Version", FRANKENWASM_VERSION);
     php_info_print_table_end();
 }
 
@@ -68,7 +68,7 @@ zend_module_entry frankenwasm_module_entry = {
     frankenwasm_rinit,
     frankenwasm_rshutdown,
     PHP_MINFO(frankenwasm),
-    "0.1.0",
+    FRANKENWASM_VERSION,
     STANDARD_MODULE_PROPERTIES
 };
 

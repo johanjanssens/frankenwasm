@@ -55,6 +55,7 @@ int frankenwasm_wasm_minit(void)
     memcpy(&wasm_object_handlers, zend_get_std_object_handlers(), sizeof(zend_object_handlers));
     wasm_object_handlers.offset = XtOffsetOf(wasm_object, std);
     wasm_object_handlers.free_obj = wasm_free_object;
+    wasm_object_handlers.clone_obj = NULL;
 
     return SUCCESS;
 }

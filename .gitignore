@@ -6,5 +6,6 @@ __debug_bin
 *.log
 plugins/*.wasm
 env.yaml
+discussion-post.md
 **/target/
 **/node_modules/

@@ -47,10 +47,10 @@ function _fmtSize($b) {
         <button class="theme-toggle" onclick="document.documentElement.classList.toggle('dark');localStorage.setItem('theme',document.documentElement.classList.contains('dark')?'dark':'light')" aria-label="Toggle theme">&#x25D1;</button>
         <span class="nav-links">
 <?php if (!empty($_prev)): ?>
-            <a href="<?= $_prev['url'] ?>">&larr; <?= $_prev['label'] ?></a>
+            <a href="<?= htmlspecialchars($_prev['url']) ?>">&larr; <?= htmlspecialchars($_prev['label']) ?></a>
 <?php endif; ?>
 <?php if (!empty($_next)): ?>
-            <a href="<?= $_next['url'] ?>"><?= $_next['label'] ?> &rarr;</a>
+            <a href="<?= htmlspecialchars($_next['url']) ?>"><?= htmlspecialchars($_next['label']) ?> &rarr;</a>
 <?php endif; ?>
         </span>
     </div>

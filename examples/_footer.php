@@ -2,10 +2,10 @@
 <script>
 document.addEventListener('keydown', function(e) {
 <?php if (!empty($_prev)): ?>
-    if (e.key === 'ArrowLeft') window.location.href = '<?= $_prev['url'] ?>';
+    if (e.key === 'ArrowLeft') window.location.href = <?= json_encode($_prev['url']) ?>;
 <?php endif; ?>
 <?php if (!empty($_next)): ?>
-    if (e.key === 'ArrowRight') window.location.href = '<?= $_next['url'] ?>';
+    if (e.key === 'ArrowRight') window.location.href = <?= json_encode($_next['url']) ?>;
 <?php endif; ?>
 });
 </script>

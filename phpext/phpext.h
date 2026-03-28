@@ -10,6 +10,7 @@
 
 #include "wasmplugin.h"
 
+#define FRANKENWASM_VERSION "0.1.0"
 #define FRANKENWASM_JSON_DEPTH 512
 
 // Module entry (registered via frankenphp.RegisterExtension)
